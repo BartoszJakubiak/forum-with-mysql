@@ -31,7 +31,7 @@ public class UserController {
             User newUser = new User();
             newUser.setUsername(newUserCredentials.getUsername());
             newUser.setPassword(this.encoder.encode(newUserCredentials.getPassword()));
-            newUser.setRole(Role.ROLE_USER);
+            newUser.setRole("ROLE_USER");
             this.userRepository.save(newUser);
             return "Saved";
         }

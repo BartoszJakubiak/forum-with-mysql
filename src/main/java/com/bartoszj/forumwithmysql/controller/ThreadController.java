@@ -63,13 +63,14 @@ public class ThreadController {
         if (thread.isPresent()) {
             return "Thread with this title already exists: " + newThread.getTitle();
         } else {
+            User author = userRepository.findByUsername(principal.getName()).get();
             Thread createdThread = new Thread();
             createdThread.setTitle(newThread.getTitle());
             createdThread.setCommentList(new ArrayList());
-            this.threadRepository.save(createdThread);
-            User author = (User)this.userRepository.findByUsername(principal.getName()).get();
+            createdThread.setUser(author);
             author.addThread(createdThread);
-            this.userRepository.save(author);
+            userRepository.save(author);
+            threadRepository.save(createdThread);
             return "Added new thread!";
         }
     }

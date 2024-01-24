@@ -17,17 +17,14 @@ public class Thread {
     @Id
     @GeneratedValue
     private Long id;
-    private @NotBlank String title;
+    @NotBlank
+    private  String title;
     @ManyToOne
-    @JoinColumn(
-            name = "USER_ID"
-    )
-    private @NotNull User user;
+    @JoinColumn(name = "USER_ID")
+    @NotNull
+    private User user;
     @OneToMany
-    @JoinColumn(
-            name = "THREAD_ID",
-            referencedColumnName = "ID"
-    )
+    @JoinColumn(name = "THREAD_ID", referencedColumnName = "ID")
     private List<Comment> commentList;
 
     public Thread() {

@@ -19,7 +19,7 @@ public class User implements Serializable {
     private Long id;
     private @NotBlank String username;
     private @NotBlank String password;
-    private List<Role> role = new ArrayList();
+    private String role;
     @OneToMany
     @JoinColumn(
             name = "USER_ID",
@@ -60,12 +60,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public List<Role> getRole() {
-        return new ArrayList(this.role);
+    public String getRole() {
+        return this.role;
     }
 
-    public void setRole(Role role) {
-        this.role.add(role);
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public void addThread(Thread thread) {
