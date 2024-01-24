@@ -36,18 +36,15 @@ public class ThreadController {
     @GetMapping
     public List<ThreadDtoOut> getAllThreads() {
         List<ThreadDtoOut> list = new ArrayList();
-        this.threadRepository.findAll().forEach((l) -> {
-            list.add(this.modelMapper.threadToDtoOut(l));
-        });
+        this.threadRepository.findAll().forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
         return list;
     }
 
     @GetMapping({"/my_threads"})
     public List<ThreadDtoOut> getUserThreads(Principal principal) {
         List<ThreadDtoOut> list = new ArrayList();
-        this.threadRepository.findThreadByUser((User)this.userRepository.findByUsername(principal.getName()).get()).forEach((l) -> {
-            list.add(this.modelMapper.threadToDtoOut(l));
-        });
+        threadRepository.findThreadByUser(userRepository.findByUsername(principal.getName()).get())
+                .forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
         return list;
     }
 

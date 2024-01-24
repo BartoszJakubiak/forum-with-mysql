@@ -30,7 +30,10 @@ public class CommentController {
     private UserRepository userRepository;
     private ModelMapper modelMapper;
 
-    public CommentController(CommentRepository commentRepository, ThreadRepository threadRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public CommentController(CommentRepository commentRepository,
+                             ThreadRepository threadRepository,
+                             UserRepository userRepository,
+                             ModelMapper modelMapper) {
         this.commentRepository = commentRepository;
         this.threadRepository = threadRepository;
         this.userRepository = userRepository;
@@ -39,30 +42,29 @@ public class CommentController {
 
     @GetMapping({"/username={username}"})
     public ResponseEntity<List<CommentDtoOut>> getCommentsByUser(@PathVariable String username) {
-        List<CommentDtoOut> list = new ArrayList();
+
         Optional<User> userOptional = this.userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
             return new ResponseEntity(HttpStatus.NO_CONTENT);
-        } else {
-            this.commentRepository.findCommentsByUser((User)userOptional.get()).forEach((l) -> {
-                list.add(this.modelMapper.commentToDtoOut(l));
-            });
-            return ResponseEntity.ok(list);
         }
+        List<CommentDtoOut> list = new ArrayList();
+        commentRepository.findCommentsByUser(userOptional.get())
+                .forEach((l) -> list.add(this.modelMapper.commentToDtoOut(l)));
+        return ResponseEntity.ok(list);
+
     }
 
     @GetMapping({"/thread={threadId}"})
     public ResponseEntity<List<CommentDtoOut>> getCommentsByThread(@PathVariable Long threadId) {
-        List<CommentDtoOut> list = new ArrayList();
         Optional<Thread> threadOptional = this.threadRepository.findById(threadId);
         if (threadOptional.isEmpty()) {
             return new ResponseEntity(HttpStatus.NO_CONTENT);
-        } else {
-            this.commentRepository.findCommentsByThread((Thread)threadOptional.get()).forEach((l) -> {
-                list.add(this.modelMapper.commentToDtoOut(l));
-            });
-            return ResponseEntity.ok(list);
         }
+        List<CommentDtoOut> list = new ArrayList();
+        commentRepository.findCommentsByThread(threadOptional.get())
+                .forEach(l -> list.add(modelMapper.commentToDtoOut(l)));
+        return ResponseEntity.ok(list);
+
     }
 
     @PostMapping({"/add_comment"})
@@ -70,16 +72,15 @@ public class CommentController {
         Optional<Thread> optionalThread = this.threadRepository.findById(commentDtoIn.getThreadId());
         if (optionalThread.isEmpty()) {
             return "Could not find thread";
-        } else {
-            User user = (User)this.userRepository.findByUsername(principal.getName()).get();
-            Thread thread = (Thread)optionalThread.get();
-            Comment comment = new Comment(commentDtoIn.getContent(), user, thread);
-            thread.addComment(comment);
-            user.addComment(comment);
-            this.threadRepository.save(thread);
-            this.userRepository.save(user);
-            this.commentRepository.save(comment);
-            return "Comment added";
         }
+        User user = (User)this.userRepository.findByUsername(principal.getName()).get();
+        Thread thread = (Thread)optionalThread.get();
+        Comment comment = new Comment(commentDtoIn.getContent(), user, thread);
+        thread.addComment(comment);
+        user.addComment(comment);
+        this.threadRepository.save(thread);
+        this.userRepository.save(user);
+        this.commentRepository.save(comment);
+        return "Comment added";
     }
 }
