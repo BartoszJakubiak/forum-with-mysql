@@ -29,11 +29,11 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(c -> c.disable())
                 .authorizeHttpRequests((auth) -> {auth
-                        .requestMatchers(new String[]{"/user"}).permitAll()
-                        .requestMatchers(new String[]{"/user/sign-up"}).permitAll()
-                        .requestMatchers(new String[]{"/threads"}).permitAll()
-                        .requestMatchers(new String[]{"/threads/**"}).hasRole("USER")
-                        .requestMatchers(new String[]{"/comments/**"}).hasRole("USER")
+                        .requestMatchers("/user").permitAll()
+                        .requestMatchers("/user/sign-up").permitAll()
+                        .requestMatchers("/threads").permitAll()
+                        .requestMatchers("/threads/**").hasRole("USER")
+                        .requestMatchers("/comments/**").hasRole("USER")
                         .anyRequest().authenticated();
         })
                 .userDetailsService(this.userDetailsService)

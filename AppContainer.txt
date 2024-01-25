@@ -1,0 +1,4 @@
+docker run -p 127.0.0.1:8080:8080 `
+--network spring-security-jpa --network-alias forumapp `
+-e SPRING_DATASOURCE_URL=jdbc:mysql://mysql/jpaMySQL `
+forum-with-mysql

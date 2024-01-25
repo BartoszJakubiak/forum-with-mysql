@@ -1,0 +1,6 @@
+docker run -d --network spring-security-jpa --network-alias mysql `
+-p 127.0.0.1:3306:3306 `
+-v docker_jpaMySQL:/var/lib/mysql `
+-e MYSQL_ROOT_PASSWORD=pass `
+-e MYSQL_DATABASE=jpaMySQL `
+mysql:8.0
