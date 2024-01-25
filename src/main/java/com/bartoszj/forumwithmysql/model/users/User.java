@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class User implements Serializable {
+public class User {
     @Id
     @GeneratedValue
     private Long id;
-    private @NotBlank String username;
-    private @NotBlank String password;
+    private String username;
+    private String password;
     private String role;
     @OneToMany
     @JoinColumn(

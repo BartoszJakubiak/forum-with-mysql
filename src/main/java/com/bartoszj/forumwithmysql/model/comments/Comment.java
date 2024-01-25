@@ -15,7 +15,7 @@ public class Comment {
     @Id
     @GeneratedValue
     private Long id;
-    private @NotBlank String content;
+    private String content;
     @ManyToOne
     @JoinColumn(
             name = "USER_ID"

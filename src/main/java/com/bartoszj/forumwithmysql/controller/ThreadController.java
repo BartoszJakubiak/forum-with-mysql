@@ -11,6 +11,8 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,7 +57,7 @@ public class ThreadController {
     }
 
     @PostMapping({"/create_thread"})
-    public String createThread(@RequestBody ThreadDtoIn newThread, Principal principal) {
+    public String createThread(@Valid @RequestBody ThreadDtoIn newThread, Principal principal) {
         Optional<Thread> thread = this.threadRepository.findThreadByTitle(newThread.getTitle());
         if (thread.isPresent()) {
             return "Thread with this title already exists: " + newThread.getTitle();

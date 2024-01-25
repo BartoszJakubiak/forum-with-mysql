@@ -13,6 +13,8 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -68,7 +70,7 @@ public class CommentController {
     }
 
     @PostMapping({"/add_comment"})
-    public String createComment(Principal principal, @RequestBody CommentDtoIn commentDtoIn) {
+    public String createComment(Principal principal, @Valid @RequestBody CommentDtoIn commentDtoIn) {
         Optional<Thread> optionalThread = this.threadRepository.findById(commentDtoIn.getThreadId());
         if (optionalThread.isEmpty()) {
             return "Could not find thread";

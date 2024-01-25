@@ -17,11 +17,9 @@ public class Thread {
     @Id
     @GeneratedValue
     private Long id;
-    @NotBlank
     private  String title;
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    @NotNull
     private User user;
     @OneToMany
     @JoinColumn(name = "THREAD_ID", referencedColumnName = "ID")
