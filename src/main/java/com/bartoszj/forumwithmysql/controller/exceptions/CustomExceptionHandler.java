@@ -1,4 +1,4 @@
-package com.bartoszj.forumwithmysql.controller;
+package com.bartoszj.forumwithmysql.controller.exceptions;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -21,5 +21,12 @@ public class CustomExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(ThreadNotFoundException.class)
+    public ResponseEntity<CustomResponse> handleThreadNotFoundExceptions(ThreadNotFoundException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(new CustomResponse("Could not find thread with id " + ex.getThreadId()));
     }
 }

@@ -1,5 +1,6 @@
 package com.bartoszj.forumwithmysql.controller;
 
+import com.bartoszj.forumwithmysql.controller.exceptions.ThreadNotFoundException;
 import com.bartoszj.forumwithmysql.model.ModelMapper;
 import com.bartoszj.forumwithmysql.model.comments.Comment;
 import com.bartoszj.forumwithmysql.model.comments.CommentDtoIn;
@@ -17,12 +18,7 @@ import java.util.Optional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping({"/comments"})
@@ -70,13 +66,16 @@ public class CommentController {
     }
 
     @PostMapping({"/add_comment"})
-    public String createComment(Principal principal, @Valid @RequestBody CommentDtoIn commentDtoIn) {
+    @ResponseBody
+    public String createComment(Principal principal, @Valid @RequestBody CommentDtoIn commentDtoIn)
+            throws ThreadNotFoundException{
         Optional<Thread> optionalThread = this.threadRepository.findById(commentDtoIn.getThreadId());
         if (optionalThread.isEmpty()) {
-            return "Could not find thread";
+//            return "Could not find thread id: " + commentDtoIn.getThreadId();
+            throw new ThreadNotFoundException(commentDtoIn.getThreadId());
         }
-        User user = (User)this.userRepository.findByUsername(principal.getName()).get();
-        Thread thread = (Thread)optionalThread.get();
+        User user = userRepository.findByUsername(principal.getName()).get();
+        Thread thread = optionalThread.get();
         Comment comment = new Comment(commentDtoIn.getContent(), user, thread);
         thread.addComment(comment);
         user.addComment(comment);
