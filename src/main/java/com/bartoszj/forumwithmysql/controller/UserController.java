@@ -1,11 +1,16 @@
 package com.bartoszj.forumwithmysql.controller;
 
+import com.bartoszj.forumwithmysql.controller.exceptions.CustomResponseGenerator;
 import com.bartoszj.forumwithmysql.model.users.User;
 import com.bartoszj.forumwithmysql.model.users.UserDtoIn;
 import com.bartoszj.forumwithmysql.repository.UserRepository;
+
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,17 +30,21 @@ public class UserController {
     }
 
     @PostMapping({"/sign-up"})
-    public String addUser(@Valid @RequestBody UserDtoIn newUserCredentials) {
+    public ResponseEntity<Object> addUser(@Valid @RequestBody UserDtoIn newUserCredentials) {
         Optional<User> user = this.userRepository.findByUsername(newUserCredentials.getUsername());
         if (user.isPresent()) {
-            return "User with this username already exists";
+            return CustomResponseGenerator
+                    .generateResponseNoData("User with this username already exists",
+                            HttpStatus.BAD_REQUEST);
         } else {
             User newUser = new User();
             newUser.setUsername(newUserCredentials.getUsername());
             newUser.setPassword(this.encoder.encode(newUserCredentials.getPassword()));
             newUser.setRole("ROLE_USER");
             this.userRepository.save(newUser);
-            return "Saved";
+            return CustomResponseGenerator
+                    .generateResponseNoData("New user added",
+                            HttpStatus.CREATED);
         }
     }
 }

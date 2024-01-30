@@ -1,5 +1,6 @@
 package com.bartoszj.forumwithmysql.controller;
 
+import com.bartoszj.forumwithmysql.controller.exceptions.CustomResponseGenerator;
 import com.bartoszj.forumwithmysql.model.ModelMapper;
 import com.bartoszj.forumwithmysql.model.threads.Thread;
 import com.bartoszj.forumwithmysql.model.threads.ThreadDtoIn;
@@ -36,31 +37,63 @@ public class ThreadController {
     }
 
     @GetMapping
-    public List<ThreadDtoOut> getAllThreads() {
+    public ResponseEntity<Object> getAllThreads() {
         List<ThreadDtoOut> list = new ArrayList();
         this.threadRepository.findAll().forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
-        return list;
+        return CustomResponseGenerator
+                .generateResponse("List of existing threads: ",
+                        HttpStatus.ACCEPTED,
+                        list);
     }
 
     @GetMapping({"/my_threads"})
-    public List<ThreadDtoOut> getUserThreads(Principal principal) {
+    public ResponseEntity<Object> getUserThreads(Principal principal) {
         List<ThreadDtoOut> list = new ArrayList();
         threadRepository.findThreadByUser(userRepository.findByUsername(principal.getName()).get())
                 .forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
-        return list;
+        return CustomResponseGenerator
+                .generateResponse("List of my threads: ",
+                        HttpStatus.ACCEPTED, list);
     }
 
-    @GetMapping({"{id}"})
-    public ResponseEntity<ThreadDtoOut> getThread(@PathVariable Long id) {
+    @GetMapping({"/username={username}"})
+    public ResponseEntity<Object> getUserThreads(@PathVariable String username) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isEmpty()) {
+            return CustomResponseGenerator
+                    .generateResponseNoData("Could not find user",
+                            (HttpStatus.BAD_REQUEST));
+        }
+        List<ThreadDtoOut> list = new ArrayList();
+        threadRepository
+                .findThreadByUser(optionalUser.get())
+                .forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
+        return CustomResponseGenerator
+                .generateResponse(username + "'s threads",
+                        HttpStatus.ACCEPTED, list);
+    }
+
+    @GetMapping({"/thread_id={id}"})
+    public ResponseEntity<Object> getThreadbyId(@PathVariable Long id) {
         Optional<Thread> thread = this.threadRepository.findById(id);
-        return thread.isEmpty() ? new ResponseEntity(HttpStatus.NO_CONTENT) : ResponseEntity.ok(this.modelMapper.threadToDtoOut((Thread)thread.get()));
+        if (thread.isEmpty()) {
+            return CustomResponseGenerator
+                    .generateResponseNoData("Could not find thread",
+                            HttpStatus.BAD_REQUEST);
+        }
+        return CustomResponseGenerator
+                .generateResponse("Found thread",
+                        HttpStatus.ACCEPTED,
+                        modelMapper.threadToDtoOut(thread.get()));
     }
 
     @PostMapping({"/create_thread"})
-    public String createThread(@Valid @RequestBody ThreadDtoIn newThread, Principal principal) {
-        Optional<Thread> thread = this.threadRepository.findThreadByTitle(newThread.getTitle());
+    public ResponseEntity<Object> createThread(@Valid @RequestBody ThreadDtoIn newThread, Principal principal) {
+        Optional<Thread> thread = threadRepository.findThreadByTitle(newThread.getTitle());
         if (thread.isPresent()) {
-            return "Thread with this title already exists: " + newThread.getTitle();
+            return CustomResponseGenerator
+                    .generateResponseNoData("Thread with this name already exists",
+                            HttpStatus.BAD_REQUEST);
         } else {
             User author = userRepository.findByUsername(principal.getName()).get();
             Thread createdThread = new Thread();
@@ -70,7 +103,9 @@ public class ThreadController {
             author.addThread(createdThread);
             userRepository.save(author);
             threadRepository.save(createdThread);
-            return "Added new thread!";
+            return CustomResponseGenerator
+                    .generateResponseNoData("Added new thread",
+                            HttpStatus.CREATED);
         }
     }
 }

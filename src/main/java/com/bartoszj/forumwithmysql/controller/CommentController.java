@@ -1,6 +1,6 @@
 package com.bartoszj.forumwithmysql.controller;
 
-import com.bartoszj.forumwithmysql.controller.exceptions.ThreadNotFoundException;
+import com.bartoszj.forumwithmysql.controller.exceptions.CustomResponseGenerator;
 import com.bartoszj.forumwithmysql.model.ModelMapper;
 import com.bartoszj.forumwithmysql.model.comments.Comment;
 import com.bartoszj.forumwithmysql.model.comments.CommentDtoIn;
@@ -39,40 +39,41 @@ public class CommentController {
     }
 
     @GetMapping({"/username={username}"})
-    public ResponseEntity<List<CommentDtoOut>> getCommentsByUser(@PathVariable String username) {
-
+    public ResponseEntity<Object> getCommentsByUser(@PathVariable String username) {
         Optional<User> userOptional = this.userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            return CustomResponseGenerator
+                    .generateResponseNoData("User not found", HttpStatus.BAD_REQUEST);
         }
         List<CommentDtoOut> list = new ArrayList();
         commentRepository.findCommentsByUser(userOptional.get())
                 .forEach((l) -> list.add(this.modelMapper.commentToDtoOut(l)));
-        return ResponseEntity.ok(list);
-
+        return CustomResponseGenerator
+                .generateResponse("Comments of User: " + username, HttpStatus.ACCEPTED, list);
     }
 
     @GetMapping({"/thread={threadId}"})
-    public ResponseEntity<List<CommentDtoOut>> getCommentsByThread(@PathVariable Long threadId) {
+    public ResponseEntity<Object> getCommentsByThread(@PathVariable Long threadId) {
         Optional<Thread> threadOptional = this.threadRepository.findById(threadId);
         if (threadOptional.isEmpty()) {
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            return CustomResponseGenerator
+                    .generateResponseNoData("Could not find thread", HttpStatus.BAD_REQUEST);
         }
         List<CommentDtoOut> list = new ArrayList();
         commentRepository.findCommentsByThread(threadOptional.get())
                 .forEach(l -> list.add(modelMapper.commentToDtoOut(l)));
-        return ResponseEntity.ok(list);
-
+        return CustomResponseGenerator
+                .generateResponse("Comments of thread: " + threadOptional.get().getTitle(),
+                        HttpStatus.ACCEPTED, list);
     }
 
     @PostMapping({"/add_comment"})
     @ResponseBody
-    public String createComment(Principal principal, @Valid @RequestBody CommentDtoIn commentDtoIn)
-            throws ThreadNotFoundException{
+    public ResponseEntity<Object> createComment(Principal principal, @Valid @RequestBody CommentDtoIn commentDtoIn) {
         Optional<Thread> optionalThread = this.threadRepository.findById(commentDtoIn.getThreadId());
         if (optionalThread.isEmpty()) {
-//            return "Could not find thread id: " + commentDtoIn.getThreadId();
-            throw new ThreadNotFoundException(commentDtoIn.getThreadId());
+            return CustomResponseGenerator
+                    .generateResponseNoData("Could not find thread", HttpStatus.BAD_REQUEST);
         }
         User user = userRepository.findByUsername(principal.getName()).get();
         Thread thread = optionalThread.get();
@@ -82,6 +83,7 @@ public class CommentController {
         this.threadRepository.save(thread);
         this.userRepository.save(user);
         this.commentRepository.save(comment);
-        return "Comment added";
+        return CustomResponseGenerator
+                .generateResponseNoData("Comment added", HttpStatus.CREATED);
     }
 }

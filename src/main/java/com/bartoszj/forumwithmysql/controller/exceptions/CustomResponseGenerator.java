@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
 public class CustomResponseGenerator {
     public static ResponseEntity<Object> generateResponse(String msg, HttpStatus status, Object obj) {
         Map<String, Object> map = new HashMap<>();

@@ -14,19 +14,13 @@ import java.util.Map;
 public class CustomExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+        Map<String, Object> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+        errors.put("status", HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.badRequest().body(errors);
-    }
-
-    @ExceptionHandler(ThreadNotFoundException.class)
-    public ResponseEntity<Object> handleThreadNotFoundExceptions(ThreadNotFoundException ex) {
-        return CustomResponseGenerator
-                .generateResponseNoData("Could not find thread with id:" + ex.getThreadId(),
-                        HttpStatus.BAD_REQUEST);
     }
 }

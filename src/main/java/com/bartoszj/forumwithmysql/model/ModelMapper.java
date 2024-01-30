@@ -12,10 +12,14 @@ public class ModelMapper {
     }
 
     public CommentDtoOut commentToDtoOut(Comment comment) {
-        return new CommentDtoOut(comment.getContent(), comment.getUser().getUsername());
+        return new CommentDtoOut(comment.getContent(),
+                comment.getUser().getUsername());
     }
 
     public ThreadDtoOut threadToDtoOut(Thread thread) {
-        return new ThreadDtoOut(thread.getId(), thread.getTitle(), thread.getUser().getUsername(), thread.getCommentList().stream().map(this::commentToDtoOut).toList());
+        return new ThreadDtoOut(thread.getId(),
+                thread.getTitle(),
+                thread.getUser().getUsername(),
+                thread.getCommentList().stream().map(this::commentToDtoOut).toList());
     }
 }
