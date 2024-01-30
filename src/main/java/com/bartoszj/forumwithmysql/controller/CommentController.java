@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +42,9 @@ public class CommentController {
     }
 
     @GetMapping({"/username={username}"})
-    public ResponseEntity<Object> getCommentsByUser(@PathVariable String username) {
+    public ResponseEntity<Object> getCommentsByUser(@PathVariable String username,
+                                                    @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+                                                    @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize) {
         Optional<User> userOptional = this.userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
             return CustomResponseGenerator
@@ -48,23 +53,31 @@ public class CommentController {
         List<CommentDtoOut> list = new ArrayList();
         commentRepository.findCommentsByUser(userOptional.get())
                 .forEach((l) -> list.add(this.modelMapper.commentToDtoOut(l)));
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+        Page<Comment> pageComment = commentRepository
+                .findCommentsByUser(userOptional.get(), pageRequest);
         return CustomResponseGenerator
-                .generateResponse("Comments of User: " + username, HttpStatus.ACCEPTED, list);
+                .generateResponse("Comments of User: " + username,
+                        HttpStatus.ACCEPTED,
+                        pageComment.map(l -> modelMapper.commentToDtoOut(l)));
     }
 
     @GetMapping({"/thread={threadId}"})
-    public ResponseEntity<Object> getCommentsByThread(@PathVariable Long threadId) {
+    public ResponseEntity<Object> getCommentsByThread(@PathVariable Long threadId,
+                                                      @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+                                                      @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize) {
         Optional<Thread> threadOptional = this.threadRepository.findById(threadId);
         if (threadOptional.isEmpty()) {
             return CustomResponseGenerator
                     .generateResponseNoData("Could not find thread", HttpStatus.BAD_REQUEST);
         }
-        List<CommentDtoOut> list = new ArrayList();
-        commentRepository.findCommentsByThread(threadOptional.get())
-                .forEach(l -> list.add(modelMapper.commentToDtoOut(l)));
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+        Page<Comment> pageComment = commentRepository
+                .findCommentsByThread(threadOptional.get(), pageRequest);
         return CustomResponseGenerator
                 .generateResponse("Comments of thread: " + threadOptional.get().getTitle(),
-                        HttpStatus.ACCEPTED, list);
+                        HttpStatus.ACCEPTED,
+                        pageComment.map(l ->modelMapper.commentToDtoOut(l)));
     }
 
     @PostMapping({"/add_comment"})
