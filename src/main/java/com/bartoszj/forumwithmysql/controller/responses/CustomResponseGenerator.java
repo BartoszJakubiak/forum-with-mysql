@@ -1,8 +1,7 @@
-package com.bartoszj.forumwithmysql.controller.exceptions;
+package com.bartoszj.forumwithmysql.controller.responses;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;

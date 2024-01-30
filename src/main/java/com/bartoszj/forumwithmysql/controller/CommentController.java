@@ -1,6 +1,6 @@
 package com.bartoszj.forumwithmysql.controller;
 
-import com.bartoszj.forumwithmysql.controller.exceptions.CustomResponseGenerator;
+import com.bartoszj.forumwithmysql.controller.responses.CustomResponseGenerator;
 import com.bartoszj.forumwithmysql.model.ModelMapper;
 import com.bartoszj.forumwithmysql.model.comments.Comment;
 import com.bartoszj.forumwithmysql.model.comments.CommentDtoIn;

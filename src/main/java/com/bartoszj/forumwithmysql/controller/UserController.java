@@ -1,11 +1,10 @@
 package com.bartoszj.forumwithmysql.controller;
 
-import com.bartoszj.forumwithmysql.controller.exceptions.CustomResponseGenerator;
+import com.bartoszj.forumwithmysql.controller.responses.CustomResponseGenerator;
 import com.bartoszj.forumwithmysql.model.users.User;
 import com.bartoszj.forumwithmysql.model.users.UserDtoIn;
 import com.bartoszj.forumwithmysql.repository.UserRepository;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.validation.Valid;

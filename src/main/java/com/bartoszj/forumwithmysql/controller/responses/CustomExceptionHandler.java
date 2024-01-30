@@ -1,4 +1,4 @@
-package com.bartoszj.forumwithmysql.controller.exceptions;
+package com.bartoszj.forumwithmysql.controller.responses;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
