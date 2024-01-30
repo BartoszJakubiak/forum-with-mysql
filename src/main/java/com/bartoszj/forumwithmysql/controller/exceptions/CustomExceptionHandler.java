@@ -1,5 +1,6 @@
 package com.bartoszj.forumwithmysql.controller.exceptions;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,7 +12,6 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -24,9 +24,9 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(ThreadNotFoundException.class)
-    public ResponseEntity<CustomResponse> handleThreadNotFoundExceptions(ThreadNotFoundException ex) {
-        return ResponseEntity
-                .badRequest()
-                .body(new CustomResponse("Could not find thread with id " + ex.getThreadId()));
+    public ResponseEntity<Object> handleThreadNotFoundExceptions(ThreadNotFoundException ex) {
+        return CustomResponseGenerator
+                .generateResponseNoData("Could not find thread with id:" + ex.getThreadId(),
+                        HttpStatus.BAD_REQUEST);
     }
 }
