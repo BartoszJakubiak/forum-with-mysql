@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class CustomResponseGenerator {
-    @JsonPropertyOrder({"message", "status", "data"})
     public static ResponseEntity<Object> generateResponse(String msg, HttpStatus status, Object obj) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("message", msg);
@@ -18,7 +17,6 @@ public class CustomResponseGenerator {
         map.put("data", obj);
         return new ResponseEntity<>(map, status);
     }
-    @JsonPropertyOrder({"message", "status"})
     public static ResponseEntity<Object> generateResponseNoData(String msg, HttpStatus status) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("message", msg);
