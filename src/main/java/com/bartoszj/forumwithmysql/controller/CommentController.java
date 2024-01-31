@@ -4,20 +4,16 @@ import com.bartoszj.forumwithmysql.controller.responses.CustomResponseGenerator;
 import com.bartoszj.forumwithmysql.model.ModelMapper;
 import com.bartoszj.forumwithmysql.model.comments.Comment;
 import com.bartoszj.forumwithmysql.model.comments.CommentDtoIn;
-import com.bartoszj.forumwithmysql.model.comments.CommentDtoOut;
 import com.bartoszj.forumwithmysql.model.threads.Thread;
 import com.bartoszj.forumwithmysql.model.users.User;
 import com.bartoszj.forumwithmysql.repository.CommentRepository;
 import com.bartoszj.forumwithmysql.repository.ThreadRepository;
 import com.bartoszj.forumwithmysql.repository.UserRepository;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,9 +46,6 @@ public class CommentController {
             return CustomResponseGenerator
                     .generateResponseNoData("User not found", HttpStatus.BAD_REQUEST);
         }
-        List<CommentDtoOut> list = new ArrayList();
-        commentRepository.findCommentsByUser(userOptional.get())
-                .forEach((l) -> list.add(this.modelMapper.commentToDtoOut(l)));
         PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
         Page<Comment> pageComment = commentRepository
                 .findCommentsByUser(userOptional.get(), pageRequest);
@@ -75,7 +68,7 @@ public class CommentController {
         Page<Comment> pageComment = commentRepository
                 .findCommentsByThread(threadOptional.get(), pageRequest);
         return CustomResponseGenerator
-                .generateResponse("Comments of thread: " + threadOptional.get().getTitle(),
+                .generateResponse("Comments of thread: " + threadOptional.get().getTitle() + " - by: " + threadOptional.get().getUser().getUsername(),
                         HttpStatus.ACCEPTED,
                         pageComment.map(l ->modelMapper.commentToDtoOut(l)));
     }

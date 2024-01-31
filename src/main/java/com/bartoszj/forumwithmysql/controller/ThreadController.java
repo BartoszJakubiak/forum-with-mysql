@@ -4,24 +4,19 @@ import com.bartoszj.forumwithmysql.controller.responses.CustomResponseGenerator;
 import com.bartoszj.forumwithmysql.model.ModelMapper;
 import com.bartoszj.forumwithmysql.model.threads.Thread;
 import com.bartoszj.forumwithmysql.model.threads.ThreadDtoIn;
-import com.bartoszj.forumwithmysql.model.threads.ThreadDtoOut;
 import com.bartoszj.forumwithmysql.model.users.User;
 import com.bartoszj.forumwithmysql.repository.ThreadRepository;
 import com.bartoszj.forumwithmysql.repository.UserRepository;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping({"/threads"})
@@ -37,55 +32,58 @@ public class ThreadController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getAllThreads() {
-        List<ThreadDtoOut> list = new ArrayList();
-        this.threadRepository.findAll().forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
+    public ResponseEntity<Object> getAllThreads(@RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+                                                @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+        Page<Thread> pageThread = threadRepository.findAll(pageRequest);
         return CustomResponseGenerator
                 .generateResponse("List of existing threads: ",
                         HttpStatus.ACCEPTED,
-                        list);
+                        pageThread.map(modelMapper::threadToDtoOut));
     }
 
     @GetMapping({"/my_threads"})
-    public ResponseEntity<Object> getUserThreads(Principal principal) {
-        List<ThreadDtoOut> list = new ArrayList();
-        threadRepository.findThreadByUser(userRepository.findByUsername(principal.getName()).get())
-                .forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
+    public ResponseEntity<Object> getUserThreads(Principal principal,
+                                                 @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+                                                 @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize) {
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+        Page<Thread> pageThread = threadRepository.findThreadByUser(userRepository.findByUsername(principal.getName()).get(), pageRequest);
         return CustomResponseGenerator
                 .generateResponse("List of my threads: ",
-                        HttpStatus.ACCEPTED, list);
+                        HttpStatus.ACCEPTED,
+                        pageThread.map(modelMapper::threadToDtoOut));
     }
 
     @GetMapping({"/username={username}"})
-    public ResponseEntity<Object> getUserThreads(@PathVariable String username) {
+    public ResponseEntity<Object> getUserThreads(@PathVariable String username,
+                                                 @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
+                                                 @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
             return CustomResponseGenerator
                     .generateResponseNoData("Could not find user",
                             (HttpStatus.BAD_REQUEST));
         }
-        List<ThreadDtoOut> list = new ArrayList();
-        threadRepository
-                .findThreadByUser(optionalUser.get())
-                .forEach(l -> list.add(this.modelMapper.threadToDtoOut(l)));
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+        Page<Thread> pageThread = threadRepository.findThreadByUser(optionalUser.get(), pageRequest);
         return CustomResponseGenerator
                 .generateResponse(username + "'s threads",
-                        HttpStatus.ACCEPTED, list);
+                        HttpStatus.ACCEPTED, pageThread.map(modelMapper::threadToDtoOut));
     }
 
-    @GetMapping({"/thread_id={id}"})
-    public ResponseEntity<Object> getThreadbyId(@PathVariable Long id) {
-        Optional<Thread> thread = this.threadRepository.findById(id);
-        if (thread.isEmpty()) {
-            return CustomResponseGenerator
-                    .generateResponseNoData("Could not find thread",
-                            HttpStatus.BAD_REQUEST);
-        }
-        return CustomResponseGenerator
-                .generateResponse("Found thread",
-                        HttpStatus.ACCEPTED,
-                        modelMapper.threadToDtoOut(thread.get()));
-    }
+//    @GetMapping({"/thread_id={id}"})
+//    public ResponseEntity<Object> getThreadbyId(@PathVariable Long id) {
+//        Optional<Thread> thread = this.threadRepository.findById(id);
+//        if (thread.isEmpty()) {
+//            return CustomResponseGenerator
+//                    .generateResponseNoData("Could not find thread",
+//                            HttpStatus.BAD_REQUEST);
+//        }
+//        return CustomResponseGenerator
+//                .generateResponse("Found thread",
+//                        HttpStatus.ACCEPTED,
+//                        modelMapper.threadToDtoOut(thread.get()));
+//    }
 
     @PostMapping({"/create_thread"})
     public ResponseEntity<Object> createThread(@Valid @RequestBody ThreadDtoIn newThread, Principal principal) {

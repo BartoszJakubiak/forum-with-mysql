@@ -1,6 +1,8 @@
 package com.bartoszj.forumwithmysql.model.threads;
 
 import com.bartoszj.forumwithmysql.model.comments.CommentDtoOut;
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 public class ThreadDtoOut {

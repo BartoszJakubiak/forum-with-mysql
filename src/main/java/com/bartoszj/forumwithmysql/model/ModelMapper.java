@@ -20,6 +20,6 @@ public class ModelMapper {
         return new ThreadDtoOut(thread.getId(),
                 thread.getTitle(),
                 thread.getUser().getUsername(),
-                thread.getCommentList().stream().map(this::commentToDtoOut).toList());
+                thread.getCommentList().stream().map(this::commentToDtoOut).limit(3).toList());
     }
 }

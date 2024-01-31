@@ -11,11 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CommentRepository extends PagingAndSortingRepository<Comment, Long> {
-    Iterable<Comment> findCommentsByThread(Thread thread);
     Page<Comment> findCommentsByThread(Thread thread, Pageable pageable);
-
-    Iterable<Comment> findCommentsByUser(User user);
     Page<Comment> findCommentsByUser(User user, Pageable pageable);
-
     Comment save(Comment comment);
 }
