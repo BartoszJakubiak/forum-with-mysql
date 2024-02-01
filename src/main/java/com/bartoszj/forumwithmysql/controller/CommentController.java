@@ -55,7 +55,7 @@ public class CommentController {
                         pageComment.map(l -> modelMapper.commentToDtoOut(l)));
     }
 
-    @GetMapping({"/thread={threadId}"})
+    @GetMapping({"/thread={threadId}"}) //move to Thread controller
     public ResponseEntity<Object> getCommentsByThread(@PathVariable Long threadId,
                                                       @RequestParam(value = "pageNo", defaultValue = "0", required = false) int pageNo,
                                                       @RequestParam(value = "pageSize", defaultValue = "2", required = false) int pageSize) {

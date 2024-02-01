@@ -7,9 +7,11 @@ import com.bartoszj.forumwithmysql.repository.UserRepository;
 
 import java.util.Optional;
 
+import com.bartoszj.forumwithmysql.service.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,18 +19,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping({"/user"})
+@RequestMapping("/user")
 //@Validated
 public class UserController {
     private final PasswordEncoder encoder;
     private final UserRepository userRepository;
 
-    public UserController(PasswordEncoder encoder, UserRepository userRepository) {
+    private final TokenService tokenService;
+
+    public UserController(PasswordEncoder encoder, UserRepository userRepository, TokenService tokenService) {
         this.encoder = encoder;
         this.userRepository = userRepository;
+        this.tokenService = tokenService;
     }
 
-    @PostMapping({"/sign-up"})
+    @PostMapping("/sign-up")
     public ResponseEntity<Object> addUser(@Valid @RequestBody UserDtoIn newUserCredentials) {
         Optional<User> user = this.userRepository.findByUsername(newUserCredentials.getUsername());
         if (user.isPresent()) {
@@ -45,5 +50,12 @@ public class UserController {
                     .generateResponseNoData("New user added",
                             HttpStatus.CREATED);
         }
+    }
+
+    @PostMapping("/token")
+    public ResponseEntity<Object> token(Authentication authentication){
+        return CustomResponseGenerator
+                .generateResponseNoData(tokenService.generateToken(authentication),
+                        HttpStatus.ACCEPTED);
     }
 }
