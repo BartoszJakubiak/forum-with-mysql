@@ -11,12 +11,11 @@ import com.bartoszj.forumwithmysql.service.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
@@ -26,11 +25,13 @@ public class UserController {
     private final UserRepository userRepository;
 
     private final TokenService tokenService;
+    private final AuthenticationManager authenticationManager;
 
-    public UserController(PasswordEncoder encoder, UserRepository userRepository, TokenService tokenService) {
+    public UserController(PasswordEncoder encoder, UserRepository userRepository, TokenService tokenService, AuthenticationManager authenticationManager) {
         this.encoder = encoder;
         this.userRepository = userRepository;
         this.tokenService = tokenService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/sign-up")
@@ -53,9 +54,12 @@ public class UserController {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<Object> token(Authentication authentication){
+    public ResponseEntity<Object> token(@RequestBody UserDtoIn userDtoIn){
+         Authentication auth = authenticationManager
+                 .authenticate(new UsernamePasswordAuthenticationToken(userDtoIn.getUsername(),
+                        userDtoIn.getPassword()));
         return CustomResponseGenerator
-                .generateResponseNoData(tokenService.generateToken(authentication),
+                .generateResponseNoData(tokenService.generateToken(auth),
                         HttpStatus.ACCEPTED);
     }
 }
