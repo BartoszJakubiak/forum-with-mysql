@@ -55,7 +55,7 @@ public class SecurityConfig {
         })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(auth -> auth.jwt(Customizer.withDefaults()))
-                .userDetailsService(this.userDetailsService)
+//                .userDetailsService(this.userDetailsService)
 //                .httpBasic(Customizer.withDefaults())
                 .build();
     }

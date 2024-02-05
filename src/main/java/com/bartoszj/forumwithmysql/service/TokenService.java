@@ -32,8 +32,9 @@ public class TokenService {
                 .issuedAt(now)
                 .expiresAt(now.plus(1, ChronoUnit.HOURS))
                 .subject(authentication.getName())
-                .claim("scope", scope)
+                .claim("scope", scope) // Claim can be repeated
                 .build();
+
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claimSet)).getTokenValue();
     }
 }
