@@ -14,7 +14,7 @@ services:
   forumapp:
     image: forum-with-mysql
     ports:
-    - "8080:8080"
+    - "443:443"
     entrypoint: ["java","-jar","/app.jar"]
     environment:
     - SPRING_DATASOURCE_URL=jdbc:mysql://mysql/jpaMySQL
