@@ -18,11 +18,8 @@ services:
     entrypoint: ["java","-jar","/app.jar"]
     environment:
     - SPRING_DATASOURCE_URL=jdbc:mysql://mysql/jpaMySQL
-    volumes:
-    - springTmp:/tmp
     depends_on:
       - mysql
     restart: always
 volumes:
   jpaMySQL:
-  springTmp:
